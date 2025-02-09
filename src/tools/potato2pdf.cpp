@@ -90,20 +90,16 @@ int main(int argc, char *argv[]) {
         
         // Load template config
         ConfigBoxes templateConfig(templatePath + ".json");
-        if (!templateConfig) {
-            qCritical().noquote() << "Error loading template config:" << templatePath;
-            return 1;
-        }
-
         presentationTemplate = std::make_shared<Template>();
-        presentationTemplate->setConfig(*templateConfig);
+        presentationTemplate->setConfig(templateConfig);
     }
 
     // Create presentation with template
     auto presentation = std::make_shared<Presentation>();
     try {
         presentation->setData({parserOutput.slideList(), presentationTemplate});
-        presentation->setConfig(ConfigBoxes(jsonFileName(inputFile)));
+        QString jsonPath = QFileInfo(inputFile).dir().filePath(QFileInfo(inputFile).completeBaseName() + ".json");
+        presentation->setConfig(ConfigBoxes(jsonPath));
     }  catch (const PorpertyConversionError& error) {
         qCritical().noquote() << "Line" << error.line + 1 << ":" << error.message;
         return 1;
