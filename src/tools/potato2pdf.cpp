@@ -85,6 +85,7 @@ int main(int argc, char *argv[])
             ParserOutput templateOutput = generateSlides(templateContent.toStdString(), QFileInfo(templateName).absolutePath(), true);
             if (templateOutput.successfull()) {
                 auto templatePresentation = std::make_shared<Template>();
+                templatePresentation->setConfig(templateName + ".json");
                 templatePresentation->setData(templateOutput.slideList());
                 presentationTemplate = templatePresentation;
             }
