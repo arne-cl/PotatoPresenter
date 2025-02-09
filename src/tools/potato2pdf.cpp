@@ -97,8 +97,21 @@ int main(int argc, char *argv[])
     // Use PDFCreator to generate the PDF
     PDFCreator creator;
     
-    // Set up painter and dimensions matching the GUI implementation
-    presentationPtr->setConfig({QFileInfo(inputFile).completeBaseName() + ".json"});
+    // Handle config file like the GUI does
+    QString jsonFile = QFileInfo(inputFile).completeBaseName() + ".json";
+    if(!QFile::exists(jsonFile)) {
+        QFile file(jsonFile);
+        file.open(QIODevice::WriteOnly);
+        file.close();
+    }
+    
+    try {
+        presentationPtr->setConfig({jsonFile});
+    } catch (ConfigError error) {
+        std::cerr << "Error loading config: " << error.message.toStdString() 
+                  << " in file " << error.filename.toStdString() << "\n";
+        return 1;
+    }
     creator.createPdf(outputFile, presentationPtr);
     
     std::cout << "Successfully created PDF: " << outputFile.toStdString() << "\n";
