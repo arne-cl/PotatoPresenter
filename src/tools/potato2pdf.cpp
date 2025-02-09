@@ -68,10 +68,38 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // Create presentation
+    // Load template from preamble
+    std::shared_ptr<Template> presentationTemplate = nullptr;
+    auto const preamble = parserOutput.preamble();
+    if (!preamble.templateName.isEmpty()) {
+        QString templatePath = preamble.templateName;
+        if (!QDir::isAbsolutePath(templatePath)) {
+            templatePath = directory + "/" + templatePath;
+        }
+        
+        // Load template file
+        QFile templateFile(templatePath + ".potato");
+        if (!templateFile.open(QIODevice::ReadOnly)) {
+            qCritical().noquote() << "Error loading template:" << templatePath;
+            return 1;
+        }
+        
+        // Load template config
+        auto templateConfig = ConfigBoxes::loadConfig(templatePath + ".json");
+        if (!templateConfig) {
+            qCritical().noquote() << "Error loading template config:" << templatePath;
+            return 1;
+        }
+
+        presentationTemplate = std::make_shared<Template>();
+        presentationTemplate->setConfig(*templateConfig);
+    }
+
+    // Create presentation with template
     auto presentation = std::make_shared<Presentation>();
     try {
-        presentation->setData({parserOutput.slideList(), nullptr});
+        presentation->setData({parserOutput.slideList(), presentationTemplate});
+        presentation->setConfig(ConfigBoxes::loadConfig(jsonFileName(inputFile)));
     }  catch (const PorpertyConversionError& error) {
         qCritical().noquote() << "Line" << error.line + 1 << ":" << error.message;
         return 1;
