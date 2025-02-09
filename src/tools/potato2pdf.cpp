@@ -81,16 +81,16 @@ int main(int argc, char *argv[])
     writer.setResolution(96); // Standard screen DPI
     writer.setPageMargins(QMarginsF(0, 0, 0, 0));
     
+    // Create painter for PDF
+    QPainter painter(&writer);
+
     // Scale to fill page while maintaining aspect ratio
-    QSize pageSize = writer.pageLayout().fullRectPoints().size().toSize();
+    QSizeF pageSize = writer.pageLayout().fullRectPoints().size();
     double scale = std::min(
         pageSize.width() / 1600.0,
         pageSize.height() / 900.0
     );
     painter.scale(scale, scale);
-
-    // Create painter for PDF
-    QPainter painter(&writer);
     
     // Create slide renderer with vector hints since we're rendering to PDF
     SlideRenderer renderer(painter);
