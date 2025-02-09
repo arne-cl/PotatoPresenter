@@ -146,6 +146,7 @@ target_include_directories(markdowntest PRIVATE ${ANTLR4_INCLUDE_DIR})
 add_dependencies( PotatoPresenter antlr4_shared )
 add_dependencies( grammartest antlr4_shared )
 add_dependencies( markdowntest antlr4_shared )
+add_dependencies( potato2pdf antlr4_shared )
 
 target_link_libraries(PotatoPresenter PRIVATE Qt5::Widgets KF5::TextEditor KF5::SyntaxHighlighting)
 target_link_libraries(PotatoPresenter PRIVATE Qt5::PrintSupport)
@@ -159,7 +160,7 @@ target_link_libraries(markdowntest PRIVATE antlr4_shared)
 target_link_libraries(potato2pdf PRIVATE Qt5::Widgets Qt5::PrintSupport Qt5::Svg antlr4_shared)
 
 target_include_directories(PotatoPresenter PRIVATE src/ui/ src/core/ src/core/boxes/ src/core/antlr src/antlr/markdown/generated src/antlr/potato/generated)
-target_include_directories(potato2pdf PRIVATE src/core/ src/core/boxes/ src/core/antlr src/antlr/markdown/generated src/antlr/potato/generated)
+target_include_directories(potato2pdf PRIVATE ${ANTLR4_INCLUDE_DIR} src/core/ src/core/boxes/ src/core/antlr src/antlr/markdown/generated src/antlr/potato/generated)
 target_include_directories(grammartest PRIVATE src/core/ src/core/antlr src/antlr/potato/generated)
 target_include_directories(markdowntest PRIVATE src/core/ src/core/antlr src/antlr/markdown/generated)
 
