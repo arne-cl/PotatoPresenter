@@ -8,11 +8,14 @@
 #include <QGuiApplication>
 #include <QCommandLineParser>
 #include <QFile>
+#include <QDir>
 #include <QDebug>
 #include <QFileInfo>
 
 #include "version.h"
 #include "presentation.h"
+#include "template.h"
+#include "utils.h"
 #include "pdfcreator.h"
 #include "parser.h"
 
@@ -85,7 +88,7 @@ int main(int argc, char *argv[]) {
         }
         
         // Load template config
-        auto templateConfig = ConfigBoxes::loadConfig(templatePath + ".json");
+        auto templateConfig = ConfigBoxes::loadConfigFromFile(templatePath + ".json");
         if (!templateConfig) {
             qCritical().noquote() << "Error loading template config:" << templatePath;
             return 1;
@@ -99,7 +102,7 @@ int main(int argc, char *argv[]) {
     auto presentation = std::make_shared<Presentation>();
     try {
         presentation->setData({parserOutput.slideList(), presentationTemplate});
-        presentation->setConfig(ConfigBoxes::loadConfig(jsonFileName(inputFile)));
+        presentation->setConfig(ConfigBoxes::loadConfigFromFile(Utils::jsonFileName(inputFile)));
     }  catch (const PorpertyConversionError& error) {
         qCritical().noquote() << "Line" << error.line + 1 << ":" << error.message;
         return 1;
