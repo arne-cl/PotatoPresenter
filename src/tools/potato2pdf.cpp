@@ -5,7 +5,7 @@
     SPDX-License-Identifier: LGPL-2.1-or-later
 */
 
-#include <QCoreApplication>
+#include <QGuiApplication>
 #include <QCommandLineParser>
 #include <QFile>
 #include <QDebug>
@@ -17,9 +17,9 @@
 #include "parser.h"
 
 int main(int argc, char *argv[]) {
-    QCoreApplication app(argc, argv);
-    QCoreApplication::setApplicationName("potato2pdf");
-    QCoreApplication::setApplicationVersion(PROJECT_VER);
+    QGuiApplication app(argc, argv);
+    QGuiApplication::setApplicationName("potato2pdf");
+    QGuiApplication::setApplicationVersion(PROJECT_VER);
 
     // Configure command line parser
     QCommandLineParser parser;
