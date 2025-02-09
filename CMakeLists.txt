@@ -123,6 +123,7 @@ add_executable(potato2pdf
     src/core/utils.cpp
     src/core/markdownformatvisitor.cpp
     src/core/parser.cpp
+    src/core/pdfcreator.cpp
     src/core/potatoerrorlistener.cpp
     src/core/potatoformatvisitor.cpp
     src/core/presentation.cpp
