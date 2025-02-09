@@ -78,7 +78,16 @@ int main(int argc, char *argv[])
     // Create PDF writer
     QPdfWriter writer(outputFile);
     writer.setPageSize(QPageSize(QSize(1600, 900))); // Default presentation size
+    writer.setResolution(96); // Standard screen DPI
     writer.setPageMargins(QMarginsF(0, 0, 0, 0));
+    
+    // Scale to fill page while maintaining aspect ratio
+    QSize pageSize = writer.pageLayout().fullRectPoints().size().toSize();
+    double scale = std::min(
+        pageSize.width() / 1600.0,
+        pageSize.height() / 900.0
+    );
+    painter.scale(scale, scale);
 
     // Create painter for PDF
     QPainter painter(&writer);
