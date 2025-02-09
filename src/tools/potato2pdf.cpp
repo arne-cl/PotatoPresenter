@@ -17,6 +17,7 @@
 #include "../core/parser.h"
 #include "../core/presentation.h"
 #include "../core/sliderenderer.h"
+#include "../core/pdfcreator.h"
 
 int main(int argc, char *argv[])
 {
@@ -75,39 +76,13 @@ int main(int argc, char *argv[])
     Presentation presentation;
     presentation.setData(PresentationData(output.slideList()));
 
-    // Create PDF writer with same settings as PDFCreator
-    QPdfWriter writer(outputFile);
-    writer.setPageSize(QPageSize(QSizeF(167.0625, 297), QPageSize::Millimeter));
-    writer.setPageOrientation(QPageLayout::Landscape);
-    writer.setPageMargins(QMargins(0, 0, 0, 0));
-    writer.setTitle(presentation.title());
+    // Create presentation pointer
+    auto presentationPtr = std::make_shared<Presentation>();
+    presentationPtr->setData(PresentationData(output.slideList()));
 
-    // Create painter and start painting
-    QPainter painter(&writer);
-    painter.begin(&writer);
-    
-    // Set window to match presentation dimensions
-    painter.setWindow(QRect(QPoint(0, 0), presentation.dimensions()));
-    
-    // Create slide renderer with vector hints
-    auto renderer = std::make_shared<SlideRenderer>(painter);
-    renderer->setRenderHints(static_cast<PresentationRenderHints>(
-        static_cast<int>(TargetIsVectorSurface) | 
-        static_cast<int>(NoPreviewRendering)
-    ));
-
-    // Render each slide
-    for(auto &slide: presentation.data().slideListDefaultApplied().vector) {
-        for(int i = 0; i <= slide->numberPauses(); i++) {
-            renderer->paintSlide(slide, i);
-            if(!(slide == presentation.data().slideListDefaultApplied().vector.back() 
-                 && i == slide->numberPauses())) {
-                writer.newPage();
-            }
-        }
-    }
-    
-    painter.end();
+    // Use PDFCreator to generate the PDF
+    PDFCreator creator;
+    creator.createPdf(outputFile, presentationPtr);
     
     std::cout << "Successfully created PDF: " << outputFile.toStdString() << "\n";
 
