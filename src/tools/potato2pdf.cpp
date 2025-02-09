@@ -11,6 +11,7 @@
 #include <QDebug>
 #include <QFileInfo>
 
+#include "version.h"
 #include "presentation.h"
 #include "pdfcreator.h"
 #include "parser.h"
