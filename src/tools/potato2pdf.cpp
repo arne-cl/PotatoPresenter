@@ -96,6 +96,9 @@ int main(int argc, char *argv[])
 
     // Use PDFCreator to generate the PDF
     PDFCreator creator;
+    
+    // Set up painter and dimensions matching the GUI implementation
+    presentationPtr->setConfig({QFileInfo(inputFile).completeBaseName() + ".json"});
     creator.createPdf(outputFile, presentationPtr);
     
     std::cout << "Successfully created PDF: " << outputFile.toStdString() << "\n";
