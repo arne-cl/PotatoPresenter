@@ -72,13 +72,25 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // Create presentation
-    Presentation presentation;
-    presentation.setData(PresentationData(output.slideList()));
-
-    // Create presentation pointer
+    Template::Ptr presentationTemplate = nullptr;
+    if (!output.preamble().templateName.isEmpty()) {
+        QString templateName = output.preamble().templateName;
+        if (!QDir::isAbsolutePath(templateName)) {
+            templateName = QFileInfo(inputFile).absolutePath() + "/" + templateName;
+        }
+        QFile templateFile(templateName + ".potato");
+        if (templateFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QString templateContent = QString::fromUtf8(templateFile.readAll());
+            ParserOutput templateOutput = generateSlides(templateContent.toStdString(), QFileInfo(templateName).absolutePath(), true);
+            if (templateOutput.successfull()) {
+                auto templatePresentation = std::make_shared<Template>();
+                templatePresentation->setData(templateOutput.slideList());
+                presentationTemplate = templatePresentation;
+            }
+        }
+    }
     auto presentationPtr = std::make_shared<Presentation>();
-    presentationPtr->setData(PresentationData(output.slideList()));
+    presentationPtr->setData({output.slideList(), presentationTemplate});
 
     // Use PDFCreator to generate the PDF
     PDFCreator creator;
