@@ -49,6 +49,7 @@ cd "$ORIGINAL_DIR"
 
 mkdir -p build
 cd build
+rm -rf *
 
 # Configure with CMake
 cmake .. \
