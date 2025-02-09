@@ -157,7 +157,7 @@ target_link_libraries(grammartest PRIVATE antlr4_shared)
 target_link_libraries(markdowntest PRIVATE Qt5::Test)
 target_link_libraries(markdowntest PRIVATE antlr4_shared)
 
-target_link_libraries(potato2pdf PRIVATE Qt5::Widgets Qt5::PrintSupport Qt5::Svg antlr4_shared)
+target_link_libraries(potato2pdf PRIVATE Qt5::Widgets Qt5::PrintSupport Qt5::Svg KF5::SyntaxHighlighting antlr4_shared)
 
 target_include_directories(PotatoPresenter PRIVATE src/ui/ src/core/ src/core/boxes/ src/core/antlr src/antlr/markdown/generated src/antlr/potato/generated)
 target_include_directories(potato2pdf PRIVATE ${ANTLR4_INCLUDE_DIR} src/core/ src/core/boxes/ src/core/antlr src/antlr/markdown/generated src/antlr/potato/generated)
