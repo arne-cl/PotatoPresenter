@@ -101,6 +101,44 @@ add_executable(markdowntest
     )
 add_test(NAME markdowntest COMMAND markdowntest)
 
+add_executable(potato2pdf
+    src/tools/potato2pdf.cpp
+    src/core/boxes/box.cpp
+    src/core/boxes/codebox.cpp
+    src/core/boxes/imagebox.cpp
+    src/core/boxes/geometrybox.cpp
+    src/core/boxes/latexbox.cpp
+    src/core/boxes/markdowntextbox.cpp
+    src/core/boxes/plaintextbox.cpp
+    src/core/boxes/sectionpreviewbox.cpp
+    src/core/boxes/tableofcontentsbox.cpp
+    src/core/boxes/textbox.cpp
+    src/core/boxgeometry.cpp
+    src/core/cachemanager.cpp
+    src/core/codehighlighter.cpp
+    src/core/configboxes.cpp
+    src/core/latexcachemanager.cpp
+    src/core/slide.cpp
+    src/core/sliderenderer.cpp
+    src/core/utils.cpp
+    src/core/markdownformatvisitor.cpp
+    src/core/parser.cpp
+    src/core/potatoerrorlistener.cpp
+    src/core/potatoformatvisitor.cpp
+    src/core/presentation.cpp
+    src/core/presentationdata.cpp
+    src/core/template.cpp
+    src/core/templatecache.cpp
+    src/antlr/markdown/generated/markdownBaseListener.cpp
+    src/antlr/markdown/generated/markdownLexer.cpp
+    src/antlr/markdown/generated/markdownListener.cpp
+    src/antlr/markdown/generated/markdownParser.cpp
+    src/antlr/potato/generated/potatoBaseListener.cpp
+    src/antlr/potato/generated/potatoLexer.cpp
+    src/antlr/potato/generated/potatoListener.cpp
+    src/antlr/potato/generated/potatoParser.cpp
+)
+
 target_include_directories(PotatoPresenter PRIVATE ${ANTLR4_INCLUDE_DIR})
 target_include_directories(grammartest PRIVATE ${ANTLR4_INCLUDE_DIR})
 target_include_directories(markdowntest PRIVATE ${ANTLR4_INCLUDE_DIR})
@@ -118,15 +156,19 @@ target_link_libraries(grammartest PRIVATE antlr4_shared)
 target_link_libraries(markdowntest PRIVATE Qt5::Test)
 target_link_libraries(markdowntest PRIVATE antlr4_shared)
 
+target_link_libraries(potato2pdf PRIVATE Qt5::Widgets Qt5::PrintSupport Qt5::Svg antlr4_shared)
+
 target_include_directories(PotatoPresenter PRIVATE src/ui/ src/core/ src/core/boxes/ src/core/antlr src/antlr/markdown/generated src/antlr/potato/generated)
+target_include_directories(potato2pdf PRIVATE src/core/ src/core/boxes/ src/core/antlr src/antlr/markdown/generated src/antlr/potato/generated)
 target_include_directories(grammartest PRIVATE src/core/ src/core/antlr src/antlr/potato/generated)
 target_include_directories(markdowntest PRIVATE src/core/ src/core/antlr src/antlr/markdown/generated)
 
 target_compile_definitions(PotatoPresenter PRIVATE -DQT_NO_KEYWORDS)
 target_compile_definitions(grammartest PRIVATE -DQT_NO_KEYWORDS)
 target_compile_definitions(markdowntest PRIVATE -DQT_NO_KEYWORDS)
+target_compile_definitions(potato2pdf PRIVATE -DQT_NO_KEYWORDS)
 
-install(TARGETS PotatoPresenter DESTINATION bin)
+install(TARGETS PotatoPresenter potato2pdf DESTINATION bin)
 install(FILES potatoPresenter.desktop DESTINATION share/applications)
 install(FILES potato_logo.svg DESTINATION share/icons/hicolor/64x64/apps)
 
