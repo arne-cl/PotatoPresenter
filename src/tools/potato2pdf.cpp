@@ -4,7 +4,7 @@
     SPDX-License-Identifier: LGPL-2.1-or-later
 */
 
-#include <QCoreApplication>
+#include <QGuiApplication>
 #include <QCommandLineParser>
 #include <QCommandLineOption>
 #include <QFile>
@@ -20,7 +20,7 @@
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication app(argc, argv);
+    QGuiApplication app(argc, argv);
     QCoreApplication::setApplicationName("potato2pdf");
     QCoreApplication::setApplicationVersion("1.0");
 
