@@ -75,41 +75,36 @@ int main(int argc, char *argv[])
     Presentation presentation;
     presentation.setData(PresentationData(output.slideList()));
 
-    // Create PDF writer
+    // Create PDF writer with same settings as PDFCreator
     QPdfWriter writer(outputFile);
-    writer.setPageSize(QPageSize(QSize(1600, 900))); // Default presentation size
-    writer.setResolution(96); // Standard screen DPI
-    writer.setPageMargins(QMarginsF(0, 0, 0, 0));
-    
-    // Create painter for PDF
-    QPainter painter(&writer);
+    writer.setPageSize(QPageSize(QSizeF(167.0625, 297), QPageSize::Millimeter));
+    writer.setPageOrientation(QPageLayout::Landscape);
+    writer.setPageMargins(QMargins(0, 0, 0, 0));
+    writer.setTitle(presentation.title());
 
-    // Scale to fill page while maintaining aspect ratio
-    QSizeF pageSize = writer.pageLayout().fullRectPoints().size();
-    double scale = std::min(
-        pageSize.width() / 1600.0,
-        pageSize.height() / 900.0
-    );
-    painter.scale(scale, scale);
+    // Create painter and start painting
+    QPainter painter(&writer);
+    painter.begin(&writer);
     
-    // Create slide renderer with vector hints since we're rendering to PDF
-    SlideRenderer renderer(painter);
-    renderer.setRenderHints(PresentationRenderHints::TargetIsVectorSurface);
+    // Set window to match presentation dimensions
+    painter.setWindow(QRect(QPoint(0, 0), presentation.dimensions()));
     
-    // Get slides to render
-    auto const& slides = presentation.slideList();
-    
-    // Render each slide to a new PDF page
-    for (int i = 0; i < slides.numberSlides(); ++i) {
-        if (i > 0) {
-            writer.newPage();
+    // Create slide renderer with vector hints
+    auto renderer = std::make_shared<SlideRenderer>(painter);
+    renderer->setRenderHints(static_cast<PresentationRenderHints>(
+        static_cast<int>(TargetIsVectorSurface) | 
+        static_cast<int>(NoPreviewRendering)
+    ));
+
+    // Render each slide
+    for(auto &slide: presentation.data().slideListDefaultApplied().vector) {
+        for(int i = 0; i <= slide->numberPauses(); i++) {
+            renderer->paintSlide(slide, i);
+            if(!(slide == presentation.data().slideListDefaultApplied().vector.back() 
+                 && i == slide->numberPauses())) {
+                writer.newPage();
+            }
         }
-        
-        auto slide = slides.slideAt(i);
-        if (!slide) continue;
-        
-        // Use SlideRenderer to paint the slide
-        renderer.paintSlide(slide);
     }
     
     painter.end();
