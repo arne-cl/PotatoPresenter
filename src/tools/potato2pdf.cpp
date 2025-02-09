@@ -92,12 +92,8 @@ int main(int argc, char *argv[])
         }
     }
     auto presentationPtr = std::make_shared<Presentation>();
-    presentationPtr->setData({output.slideList(), presentationTemplate});
 
-    // Use PDFCreator to generate the PDF
-    PDFCreator creator;
-    
-    // Handle config file like the GUI does
+    // Handle config first like the GUI does
     QString jsonFile = QFileInfo(inputFile).completeBaseName() + ".json";
     if(!QFile::exists(jsonFile)) {
         QFile file(jsonFile);
@@ -111,6 +107,12 @@ int main(int argc, char *argv[])
         std::cerr << "Error loading config file: " << error.filename.toStdString() << "\n";
         return 1;
     }
+
+    // Apply template AFTER config to ensure proper dimension/transform setup
+    presentationPtr->setData({output.slideList(), presentationTemplate});
+
+    // Use PDFCreator to generate the PDF
+    PDFCreator creator;
     creator.createPdf(outputFile, presentationPtr);
     
     std::cout << "Successfully created PDF: " << outputFile.toStdString() << "\n";
