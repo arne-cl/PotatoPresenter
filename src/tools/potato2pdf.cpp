@@ -108,8 +108,7 @@ int main(int argc, char *argv[])
     try {
         presentationPtr->setConfig({jsonFile});
     } catch (ConfigError error) {
-        std::cerr << "Error loading config: " << error.message.toStdString() 
-                  << " in file " << error.filename.toStdString() << "\n";
+        std::cerr << "Error loading config file: " << error.filename.toStdString() << "\n";
         return 1;
     }
     creator.createPdf(outputFile, presentationPtr);
