@@ -18,6 +18,7 @@
 #include "../core/presentation.h"
 #include "../core/sliderenderer.h"
 #include "../core/pdfcreator.h"
+#include "../core/template.h"
 
 int main(int argc, char *argv[])
 {
