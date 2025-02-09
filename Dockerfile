@@ -1,11 +1,75 @@
-FROM ubuntu:18.04
+FROM ubuntu:24.04
 
-RUN apt-get update && apt-get install -y software-properties-common && add-apt-repository ppa:ubuntu-toolchain-r/test && apt-get update && apt-get install -y gcc-11 && sudo apt install g++-11
+# Prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN wget http://www.antlr.org/download/antlr4-cpp-runtime-4.7.2-source.zip && unzip antlr4-cpp-runtime-4.7.2-source.zip && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=/usr .. && sudo make install
-RUN sudo apt-get install uuid-dev pkgconf && sudo add-apt-repository ppa:beineri/opt-qt-5.15.2-bionic && sudo apt-get update && sudo apt install qt515base qt515svg qt515declarative
+# Add required repositories
+RUN apt-get update && apt-get install -y software-properties-common && \
+    add-apt-repository ppa:ubuntu-toolchain-r/test
 
-WORKDIR /potato
-RUN mkdir /potato && git clone https://github.com/thgier/PotatoPresenter.git && mkdir build && cd build && cmake -DCMAKE_PREFIX_PATH=/opt/qt515/lib/cmake -DCMAKE_CXX_COMPILER=g++-11 .. 
-RUN cd .. && ./linuxdeployqt-continuous-x86_64.AppImage potatoPresenter.desktop -qmake=/opt/qt515/bin/qmake -appimage
+# Install all apt packages in one layer
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    g++-11 \
+    gettext \
+    git \
+    libkf5syntaxhighlighting-dev \
+    libkf5texteditor-dev \
+    pkg-config \
+    qtbase5-dev \
+    qtdeclarative5-dev \
+    libqt5svg5-dev \
+    texlive-fonts-extra \
+    texlive-latex-extra \
+    texlive-science \
+    unzip \
+    uuid-dev \
+    wget \
+    extra-cmake-modules
 
+# Verify KF5 package installation and header locations
+# Find KF5 header locations
+RUN echo "=== Contents of KF5 syntax highlighting package ===" && \
+    dpkg -L libkf5syntaxhighlighting-dev && \
+    echo "=== Looking for abstract*.h files ===" && \
+    find /usr -name "abstract*.h" && \
+    echo "=== Looking in specific KF5 locations ===" && \
+    ls -R /usr/include/KF5 && \
+    echo "=== Looking in lib locations ===" && \
+    ls -R /usr/lib/x86_64-linux-gnu/cmake/KF5SyntaxHighlighting
+RUN find /usr -name "*.pc" | grep -i KF5
+RUN ls -la /usr/lib/x86_64-linux-gnu/pkgconfig/
+RUN ls -la /usr/share/pkgconfig/
+RUN find /usr -name "KF5SyntaxHighlighting.pc"
+RUN find /usr/include/KF5 -type f | grep -i abstract
+RUN echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig:/usr/lib/pkgconfig" >> /etc/environment
+RUN . /etc/environment && pkg-config --list-all | grep -i KF5
+
+# Build and install ANTLR4
+WORKDIR /tmp/antlr4
+RUN wget https://www.antlr.org/download/antlr4-cpp-runtime-4.9.3-source.zip && \
+    unzip antlr4-cpp-runtime-4.9.3-source.zip && \
+    env CXX=g++-11 cmake . -DANTLR4_INSTALL=ON -DWITH_DEMO=False && \
+    make install
+
+# Clone and build Potato Presenter
+WORKDIR /app
+COPY . .
+RUN mkdir -p build && \
+    cd build && \
+    echo "=== Looking for abstracthighlighter.h ===" && \
+    find /usr -name "abstracthighlighter.h" && \
+    echo "=== KF5 include directory contents ===" && \
+    ls -R /usr/include/KF5 && \
+    env CXX=g++-11 cmake -DCMAKE_PREFIX_PATH="/usr/lib/x86_64-linux-gnu/cmake;/usr/local/lib/cmake/antlr4/" \
+    -DCMAKE_INCLUDE_PATH="/usr/include/KF5" \
+    -DCMAKE_CXX_FLAGS="-I/usr/include/KF5 -I/usr/include/KF5/KSyntaxHighlighting/KSyntaxHighlighting" \
+    -DCMAKE_VERBOSE_MAKEFILE=ON .. && \
+    VERBOSE=1 make
+
+# Set working directory to the binary location
+WORKDIR /app/build
+
+# Command to run the application
+CMD ["./PotatoPresenter"]
